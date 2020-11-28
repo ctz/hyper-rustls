@@ -122,7 +122,13 @@ where
             f.boxed()
         } else {
             let cfg = self.tls_config.clone();
-            let hostname = dst.host().unwrap_or_default().to_string();
+            let hostname = dst.host().unwrap_or_default();
+            let hostname = if hostname.as_bytes()[0] == b'[' {
+                &hostname[1..hostname.len() - 1]
+            } else {
+                hostname
+            };
+            let hostname = hostname.to_string();
             let connecting_future = self.http.call(dst);
 
             let f = async move {
